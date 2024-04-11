@@ -5,82 +5,90 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: mariama3 <mariama3@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/03/27 16:34:28 by mariama3          #+#    #+#             */
-/*   Updated: 2024/03/29 21:15:41 by mariama3         ###   ########.fr       */
+/*   Created: 2023/12/01 13:46:21 by tblagoev          #+#    #+#             */
+/*   Updated: 2024/04/11 19:39:07 by mariama3         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_printf.h"
-# include <stdio.h>
 
-
-void	ft_putchar(char c, int *sol)
+int	print_format(char specifier, va_list ap)
 {
-	write(1, &c, 1);
-	(*sol)++;
+	int	count;
+
+	count = 0;
+	if (specifier == 'c')
+		count += print_char(va_arg(ap, int));
+	else if (specifier == 's')
+		count += print_str(va_arg(ap, char *));
+	else if (specifier == 'd' || specifier == 'i')
+		count += print_integer((long)va_arg(ap, int), 10);
+	else if (specifier == 'x')
+		count += print_digit((long)va_arg(ap, unsigned int), 16);
+	else if (specifier == 'X')
+		count += print_digit_alt((long)va_arg(ap, unsigned int), 16);
+	else if (specifier == 'u')
+		count += print_unsigned_decimal((unsigned int)va_arg(ap, unsigned int),
+				10);
+	else if (specifier == '%')
+		return (write(1, "%", 1));
+	else if (specifier == 'p')
+		count += ft_print_mem((unsigned long)va_arg(ap, void *), 16);
+	else
+		return (write(1, &specifier, 1));
+	return (count);
 }
 
-void	print_str(const char *s, int *sol)
+int	ft_printf(char const *format, ...)
 {
-	if (!s)
-	{
-		write(1, "(null)", 6);
-		*sol += 6;
-		return ;
-	}
-	while (*s)
-	{
-		ft_putchar(*s, sol);
-		s++;
-	}
-}
+	va_list	ap;
+	int		count;
 
-void	check_module(char c, va_list args, int *sol)
-{
-	if (c == 'c')
-		ft_putchar(va_arg(args, int), sol);
-	else if (c == 's')
-		print_str(va_arg(args, char *), sol);
-	else if (c == 'p')
-		print_pointer(va_arg(args, size_t), sol);
-	else if (c == 'd' || c == 'i')
-		decimal(va_arg(args, int), sol);
-	else if (c == 'u')
-		decimal(va_arg(args, unsigned int), sol);
-	else if (c == 'x')
-		print_hex_lowercase(va_arg(args, unsigned int), sol);
-	else if (c == 'X')
-		print_hex_uppercase(va_arg(args, unsigned int), sol);
-	else if (c == '%')
-		ft_putchar('%', sol);
-}
-
-int	ft_printf(const char *format, ...)
-{
-	va_list	args;
-	int		sol;
-
-	va_start(args, format);
-	sol = 0;
+	va_start(ap, format);
+	count = 0;
 	while (*format)
 	{
 		if (*format == '%')
-			check_module(*format, args, &sol);
+			count += print_format(*(++format), ap);
 		else
-			ft_putchar(*format, &sol);
-		format++;
+			count += write (1, format, 1);
+		++format;
 	}
-	va_end(args);
-	return (sol);
+	va_end(ap);
+	return (count);
 }
 
-/*int main(void)
+/*int	main()
 {
-	printf("OR %u\n", 654654654);
-	ft_printf("MIO %u\n", 654654654);
-	return (0);
+	unsigned int	number = -1234;
+	int				base = 10;
+
+	print_unsigned_decimal(number, base);
+	printf("%u", number);
+	printf("\n");
+}
+
+int	average(int n, ...)
+{
+	va_list	ap;
+	int		total;
+	int		i;
+
+	va_start(ap, n);
+	total = 0;
+	i = 0;
+	while (i < n)
+	{
+		total += va_arg(ap, int);
+		i++;
+	}
+	return ((float)total / n);
+}
+
+int	main()
+{
+	float	average_age;
+
+	average_age = average(3, 10, 15, 20);
+	printf("The average age of those 3 ppl is %f\n", average_age);
 }*/
-
-
-
-

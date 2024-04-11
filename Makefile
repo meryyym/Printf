@@ -1,22 +1,28 @@
 NAME = libftprintf.a
+SRCS = ft_printf.c \
+	   ft_handle_chars.c \
+	   ft_handle_digits.c \
 
-SOURCES =		ft_printf.c decimal.c hexadecimal.c
+OBJS = $(SRCS:.c=.o)
 
-OBJECTS = $(SOURCES:.c=.o)
-
+CC = gcc
 CFLAGS = -Wall -Wextra -Werror
-REMOVE = rm -f
-CC = cc
 
-all : $(NAME)
+all: $(NAME)
 
-$(NAME): $(OBJECTS)
-	ar -rcs $(NAME) $(OBJECTS)
+$(NAME): $(OBJS)
+	ar rc $(NAME) $(OBJS)
+	ranlib $(NAME)
+
+%.o: %.c ft_printf.h
+	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	$(REMOVE) $(OBJECTS)
+	rm -f $(OBJS)
 
 fclean: clean
-	$(REMOVE) $(NAME)
+	rm -f $(NAME)
 
 re: fclean all
+
+.PHONY: all clean fclean re
